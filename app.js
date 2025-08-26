@@ -1,159 +1,165 @@
-// --- PASTE YOUR FIREBASE CONFIG OBJECT HERE ---
-const firebaseConfig = {
-    apiKey: "AIza...",
-    authDomain: "your-project-id.firebaseapp.com",
-    // ... rest of your config
-};
+// Wait for the DOM to be fully loaded before running the script
+document.addEventListener('DOMContentLoaded', () => {
 
-// --- INITIALIZE FIREBASE APP ---
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const usersCollection = db.collection('users');
-const vouchersCollection = db.collection('vouchers');
+    // --- SELECTORS for various HTML elements ---
+    const voucherSection = document.getElementById('voucher-section');
+    const recordsSection = document.getElementById('records-section');
+    const dashboardSection = document.getElementById('dashboard-section');
 
-// --- DOM ELEMENT SELECTORS (remains mostly the same) ---
-const loginContainer = document.getElementById('login-container');
-const appContainer = document.getElementById('app-container');
-const loginForm = document.getElementById('login-form');
-const loginError = document.getElementById('login-error');
-const logoutBtn = document.getElementById('logout-btn');
-const userInfoDisplay = document.getElementById('user-info-display');
+    const navVoucherBtn = document.getElementById('nav-voucher');
+    const navRecordsBtn = document.getElementById('nav-records');
+    const navDashboardBtn = document.getElementById('nav-dashboard');
 
-// --- GLOBAL STATE for logged in user ---
-let currentUser = null;
-
-// --- SESSION MANAGEMENT ---
-// Check if a user is already logged in from a previous session
-function checkSession() {
-    const userSession = sessionStorage.getItem('voucherUser');
-    if (userSession) {
-        currentUser = JSON.parse(userSession);
-        showApp();
-    } else {
-        showLogin();
-    }
-}
-
-// --- UI VISIBILITY FUNCTIONS ---
-function showLogin() {
-    loginContainer.classList.remove('hidden');
-    appContainer.classList.add('hidden');
-}
-
-function showApp() {
-    loginContainer.classList.add('hidden');
-    appContainer.classList.remove('hidden');
-    userInfoDisplay.textContent = `Welcome, ${currentUser.username} (${currentUser.role})`;
+    const voucherForm = document.getElementById('voucher-form');
+    const voucherNoInput = document.getElementById('voucherNo');
+    const dateInput = document.getElementById('date');
+    const paidToInput = document.getElementById('paidTo');
+    const purposeInput = document.getElementById('purpose');
+    const amountInput = document.getElementById('amount');
+    const amountInWordsP = document.getElementById('amountInWords');
+    const recordsListDiv = document.getElementById('records-list');
     
-    // Show/Hide Admin Panel based on role
-    const adminNav = document.getElementById('nav-admin');
-    if (currentUser.role === 'Admin') {
-        adminNav.classList.remove('hidden');
-    } else {
-        adminNav.classList.add('hidden');
-    }
+    // Dashboard card selectors
+    const totalVouchersEl = document.getElementById('totalVouchers');
+    const totalAmountEl = document.getElementById('totalAmount');
+    const avgAmountEl = document.getElementById('avgAmount');
 
-    initializeMainApp();
-}
+    // --- DATA HANDLING (using localStorage) ---
+    // Function to get vouchers from localStorage
+    const getVouchers = () => {
+        const vouchers = localStorage.getItem('vouchers');
+        return vouchers ? JSON.parse(vouchers) : [];
+    };
 
+    // Function to save vouchers to localStorage
+    const saveVouchers = (vouchers) => {
+        localStorage.setItem('vouchers', JSON.stringify(vouchers));
+    };
 
-// --- LOGIN and LOGOUT LOGIC (CUSTOM) ---
-loginForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    loginError.textContent = '';
-    const username = document.getElementById('login-username').value;
-    const password = document.getElementById('login-password').value;
+    // --- CORE APPLICATION LOGIC ---
 
-    try {
-        // Query Firestore for a matching user
-        const query = usersCollection
-            .where('username', '==', username)
-            .where('password', '==', password)
-            .limit(1);
-            
-        const snapshot = await query.get();
+    // Function to generate the next voucher number
+    const generateVoucherNumber = () => {
+        const vouchers = getVouchers();
+        return vouchers.length > 0 ? Math.max(...vouchers.map(v => v.id)) + 1 : 1;
+    };
 
-        if (snapshot.empty) {
-            loginError.textContent = "Invalid username or password.";
+    // Function to display all saved vouchers
+    const renderRecords = () => {
+        const vouchers = getVouchers().sort((a, b) => b.id - a.id); // Show newest first
+        recordsListDiv.innerHTML = ''; // Clear previous list
+        if (vouchers.length === 0) {
+            recordsListDiv.innerHTML = '<p>No records found. Please create a new voucher.</p>';
             return;
         }
 
-        // User found, get their data
-        const userDoc = snapshot.docs[0];
-        currentUser = {
-            id: userDoc.id,
-            username: userDoc.data().username,
-            role: userDoc.data().role
-        };
-
-        // Store user session in the browser's sessionStorage
-        sessionStorage.setItem('voucherUser', JSON.stringify(currentUser));
-
-        // Show the main application
-        showApp();
-
-    } catch (error) {
-        console.error("Login Error:", error);
-        loginError.textContent = "An error occurred. Please try again.";
-    }
-});
-
-logoutBtn.addEventListener('click', () => {
-    currentUser = null;
-    sessionStorage.removeItem('voucherUser');
-    showLogin();
-});
-
-
-// --- MAIN APP INITIALIZATION & EVENT LISTENERS ---
-function initializeMainApp() {
-    // This function sets up the main app after a successful login
-    // Your previous functions for navigation, forms, etc., go here.
-    // For example:
-    document.getElementById('nav-voucher').click(); // Show voucher form by default
-    setupEventListeners(); // We will create this function next
-}
-
-function setupEventListeners() {
-    // This is to prevent adding listeners multiple times
-    if (window.appInitialized) return;
-
-    const navButtons = document.querySelectorAll('nav button');
-    navButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            // Your navigation logic here
+        vouchers.forEach(v => {
+            const recordItem = document.createElement('div');
+            recordItem.className = 'record-item';
+            recordItem.innerHTML = `
+                <h3>Voucher #${v.voucherNo} <span>Date: ${v.date}</span></h3>
+                <p><strong>Paid To:</strong> ${v.paidTo}</p>
+                <p><strong>Purpose:</strong> ${v.purpose}</p>
+                <p class="amount">Rs. ${parseFloat(v.amount).toFixed(2)}</p>
+            `;
+            recordsListDiv.appendChild(recordItem);
         });
+    };
+    
+    // Function to update the dashboard
+    const renderDashboard = () => {
+        const vouchers = getVouchers();
+        const totalCount = vouchers.length;
+        const totalSum = vouchers.reduce((sum, v) => sum + parseFloat(v.amount), 0);
+        const avgAmount = totalCount > 0 ? totalSum / totalCount : 0;
+
+        totalVouchersEl.textContent = totalCount;
+        totalAmountEl.textContent = `Rs. ${totalSum.toFixed(2)}`;
+        avgAmountEl.textContent = `Rs. ${avgAmount.toFixed(2)}`;
+    };
+
+    // --- NAVIGATION LOGIC ---
+    const showSection = (sectionToShow) => {
+        [voucherSection, recordsSection, dashboardSection].forEach(section => {
+            section.classList.add('hidden');
+        });
+        sectionToShow.classList.remove('hidden');
+        
+        // Update active button state
+        [navVoucherBtn, navRecordsBtn, navDashboardBtn].forEach(btn => btn.classList.remove('active'));
+        if (sectionToShow === voucherSection) navVoucherBtn.classList.add('active');
+        if (sectionToShow === recordsSection) navRecordsBtn.classList.add('active');
+        if (sectionToShow === dashboardSection) navDashboardBtn.classList.add('active');
+    };
+
+    navVoucherBtn.addEventListener('click', () => showSection(voucherSection));
+    navRecordsBtn.addEventListener('click', () => {
+        renderRecords(); // Refresh records before showing
+        showSection(recordsSection);
+    });
+    navDashboardBtn.addEventListener('click', () => {
+        renderDashboard(); // Refresh dashboard before showing
+        showSection(dashboardSection);
     });
 
-    // Your other event listeners for save, update, delete, reports etc.
-    // go here. The logic inside them remains the same, but they
-    // will now use `currentUser.username` instead of `auth.currentUser.uid`
-    // to track who created the voucher.
-    
-    window.appInitialized = true;
-}
+    // --- FORM SUBMISSION LOGIC ---
+    voucherForm.addEventListener('submit', (e) => {
+        e.preventDefault(); // Prevent page from reloading
 
-// --- RENDER RECORDS (Example Update) ---
-function renderRecords() {
-    // Now, you can filter by username instead of UID
-    vouchersCollection.where('author', '==', currentUser.username).orderBy('voucherNo', 'desc')
-        .onSnapshot(snapshot => {
-            // ... your existing rendering logic
-        });
-}
+        const newVoucher = {
+            id: generateVoucherNumber(),
+            voucherNo: voucherNoInput.value,
+            date: dateInput.value,
+            paidTo: paidToInput.value,
+            purpose: purposeInput.value,
+            amount: amountInput.value,
+        };
 
-// --- SAVE VOUCHER (Example Update) ---
-async function handleSaveVoucher(e) {
-    e.preventDefault();
-    const newVoucher = {
-        // ... other voucher data
-        author: currentUser.username, // Store username instead of UID
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        const vouchers = getVouchers();
+        vouchers.push(newVoucher);
+        saveVouchers(vouchers);
+
+        alert('Voucher saved successfully!');
+        voucherForm.reset();
+        initializeApp(); // Reset the form fields
+    });
+
+    // --- EVENT LISTENER for amount input ---
+    amountInput.addEventListener('input', () => {
+        const amount = amountInput.value;
+        amountInWordsP.textContent = amount ? numberToWords(amount) + ' Only' : '...';
+    });
+
+    // --- INITIALIZATION ---
+    const initializeApp = () => {
+        voucherNoInput.value = generateVoucherNumber();
+        dateInput.valueAsDate = new Date(); // Set today's date
+        amountInWordsP.textContent = '...';
+        showSection(voucherSection);
+        navVoucherBtn.classList.add('active');
     };
-    await vouchersCollection.add(newVoucher);
-    // ...
+    
+    initializeApp();
+});
+
+// --- HELPER FUNCTION: Number to Words ---
+// (A standard function to convert numbers to words)
+function numberToWords(num) {
+    const a = ['', 'one ', 'two ', 'three ', 'four ', 'five ', 'six ', 'seven ', 'eight ', 'nine ', 'ten ', 'eleven ', 'twelve ', 'thirteen ', 'fourteen ', 'fifteen ', 'sixteen ', 'seventeen ', 'eighteen ', 'nineteen '];
+    const b = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
+    
+    const numStr = num.toString();
+    if (numStr.length > 9) return 'overflow';
+    
+    const n = ('000000000' + numStr).substr(-9).match(/^(\d{2})(\d{2})(\d{2})(\d{1})(\d{2})$/);
+    if (!n) return '';
+    
+    let str = '';
+    str += (n[1] != 0) ? (a[Number(n[1])] || b[n[1][0]] + ' ' + a[n[1][1]]) + 'crore ' : '';
+    str += (n[2] != 0) ? (a[Number(n[2])] || b[n[2][0]] + ' ' + a[n[2][1]]) + 'lakh ' : '';
+    str += (n[3] != 0) ? (a[Number(n[3])] || b[n[3][0]] + ' ' + a[n[3][1]]) + 'thousand ' : '';
+    str += (n[4] != 0) ? (a[Number(n[4])] || b[n[4][0]] + ' ' + a[n[4][1]]) + 'hundred ' : '';
+    str += (n[5] != 0) ? ((str != '') ? 'and ' : '') + (a[Number(n[5])] || b[n[5][0]] + ' ' + a[n[5][1]]) : '';
+    
+    return str.trim().split(' ').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(' ');
 }
-
-
-// --- START THE APP ---
-checkSession();
