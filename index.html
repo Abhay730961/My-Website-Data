@@ -6,16 +6,15 @@
     <title>Advanced Voucher Web App</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    <!-- jsPDF for PDF reports -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf-autotable.min.js"></script>
 </head>
 <body>
 
-    <!-- LOGIN SCREEN (Initially Visible) -->
+    <!-- LOGIN SCREEN -->
     <div id="login-container" class="auth-container">
-        <form id="login-form">
-            <h2>Login</h2>
+        <form id="login-form" autocomplete="off">
+            <h2>Voucher System Login</h2>
             <div class="form-group">
                 <label for="login-email">Email:</label>
                 <input type="email" id="login-email" required>
@@ -29,12 +28,12 @@
         </form>
     </div>
 
-    <!-- MAIN APP (Initially Hidden) -->
+    <!-- MAIN APP CONTAINER -->
     <div id="app-container" class="hidden">
         <header>
             <h1>Cash Voucher System</h1>
             <div class="user-info">
-                <span id="user-email"></span>
+                <span id="user-email-display"></span>
                 <button id="logout-btn">Logout</button>
             </div>
         </header>
@@ -47,9 +46,8 @@
         <main>
             <!-- Voucher Entry Section -->
             <section id="voucher-section">
-                <!-- Voucher Form (same as before, but with an update button) -->
-                <form id="voucher-form">
-                    <input type="hidden" id="voucherId"> <!-- For editing -->
+                <form id="voucher-form" autocomplete="off">
+                    <input type="hidden" id="voucherId">
                     <div class="form-row">
                         <div class="form-group"><label>Voucher No:</label><input type="text" id="voucherNo" disabled></div>
                         <div class="form-group"><label>Date:</label><input type="date" id="date" required></div>
@@ -57,7 +55,7 @@
                     <div class="form-group"><label>Paid To M/s:</label><input type="text" id="paidTo" required></div>
                     <div class="form-group"><label>Purpose:</label><input type="text" id="purpose" required></div>
                     <div class="form-group"><label>Amount (Rs):</label><input type="number" id="amount" step="0.01" required></div>
-                    <div class="form-group"><label>Amount in Words:</label><p id="amountInWords">...</p></div>
+                    <div class="form-group"><label>Amount in Words:</label><p id="amountInWords" class="amount-words-display">...</p></div>
                     <button type="submit" id="save-btn" class="btn-primary">Save Voucher</button>
                     <button type="button" id="update-btn" class="btn-secondary hidden">Update Voucher</button>
                     <button type="button" id="cancel-update-btn" class="btn-tertiary hidden">Cancel Update</button>
@@ -74,14 +72,8 @@
             <section id="reports-section" class="hidden">
                 <h2>Generate Reports</h2>
                 <div class="report-filters">
-                    <div class="form-group">
-                        <label for="report-year">Year:</label>
-                        <select id="report-year"></select>
-                    </div>
-                    <div class="form-group">
-                        <label for="report-month">Month:</label>
-                        <select id="report-month"></select>
-                    </div>
+                    <div class="form-group"><label for="report-year">Year:</label><select id="report-year"></select></div>
+                    <div class="form-group"><label for="report-month">Month:</label><select id="report-month"></select></div>
                     <button id="download-report-btn" class="btn-primary">Download PDF Report</button>
                 </div>
             </section>
@@ -93,6 +85,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
     
+    <!-- Main App Script -->
     <script src="app.js"></script>
 </body>
 </html>
