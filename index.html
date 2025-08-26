@@ -3,75 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Custom Auth Voucher App</title>
+    <title>Cash Voucher Web App</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    <!-- jsPDF and other libraries remain the same -->
 </head>
 <body>
-
-    <!-- LOGIN SCREEN -->
-    <div id="login-container" class="auth-container">
-        <form id="login-form" autocomplete="off">
-            <h2>Voucher System Login</h2>
-            <div class="form-group">
-                <label for="login-username">Username:</label>
-                <input type="text" id="login-username" required>
-            </div>
-            <div class="form-group">
-                <label for="login-password">Password:</label>
-                <input type="password" id="login-password" required>
-            </div>
-            <button type="submit" class="btn-primary">Login</button>
-            <p id="login-error" class="error-message"></p>
-        </form>
-    </div>
-
-    <!-- MAIN APP CONTAINER -->
-    <div id="app-container" class="hidden">
-        <header>
-            <h1>Cash Voucher System</h1>
-            <div class="user-info">
-                <span id="user-info-display">Welcome, </span>
-                <button id="logout-btn">Logout</button>
-            </div>
-        </header>
+    <header>
+        <h1>Cash Voucher Management System</h1>
         <nav>
-            <button id="nav-voucher" class="active">New Voucher</button>
+            <button id="nav-voucher">New Voucher</button>
             <button id="nav-records">All Records</button>
-            <button id="nav-reports">Reports</button>
-            <!-- Admin-only button -->
-            <button id="nav-admin" class="hidden">Admin Panel</button>
+            <button id="nav-dashboard">Dashboard</button>
         </nav>
+    </header>
 
-        <main>
-            <!-- Voucher, Records, and Reports sections remain the same -->
-            <section id="voucher-section">
-                <!-- Voucher Form from previous example -->
-            </section>
-            <section id="records-section" class="hidden">
-                <h2>All Voucher Records</h2>
-                <div id="records-list"></div>
-            </section>
-            <section id="reports-section" class="hidden">
-                <!-- Reports UI from previous example -->
-            </section>
-            
-            <!-- Admin Panel Section -->
-            <section id="admin-section" class="hidden">
-                <h2>Admin Panel - User Management</h2>
-                <div id="user-management">
-                    <!-- User list and add/delete forms will be generated here -->
+    <main>
+        <!-- Section 1: Voucher Entry Form -->
+        <section id="voucher-section" class="active">
+            <h2>Create New Cash Voucher</h2>
+            <form id="voucher-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="voucherNo">Voucher No:</label>
+                        <input type="text" id="voucherNo" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label for="date">Date:</label>
+                        <input type="date" id="date" required>
+                    </div>
                 </div>
-            </section>
-        </main>
-    </div>
+                <div class="form-group">
+                    <label for="paidTo">Paid To M/s:</label>
+                    <input type="text" id="paidTo" placeholder="Name of the person or company" required>
+                </div>
+                <div class="form-group">
+                    <label for="purpose">By Cash Against (Purpose):</label>
+                    <input type="text" id="purpose" placeholder="Reason for payment" required>
+                </div>
+                <div class="form-group">
+                    <label for="amount">Amount (Rs):</label>
+                    <input type="number" id="amount" placeholder="e.g., 1500.50" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label>Amount in Words:</label>
+                    <p id="amountInWords" class="amount-words-display">...</p>
+                </div>
+                <button type="submit" class="btn-primary">Save Voucher</button>
+            </form>
+        </section>
 
-    <!-- Firebase SDK Scripts -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-    
-    <!-- Main App Script -->
+        <!-- Section 2: Records List -->
+        <section id="records-section" class="hidden">
+            <h2>All Voucher Records</h2>
+            <div id="records-list">
+                <!-- Vouchers will be dynamically inserted here by JavaScript -->
+            </div>
+        </section>
+        
+        <!-- Section 3: Dashboard -->
+        <section id="dashboard-section" class="hidden">
+            <h2>Financial Dashboard</h2>
+            <div class="dashboard-grid">
+                <div class="card">
+                    <h3>Total Vouchers</h3>
+                    <p id="totalVouchers">0</p>
+                </div>
+                <div class="card">
+                    <h3>Total Amount Paid</h3>
+                    <p id="totalAmount">Rs. 0.00</p>
+                </div>
+                <div class="card">
+                    <h3>Average Amount</h3>
+                    <p id="avgAmount">Rs. 0.00</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
     <script src="app.js"></script>
 </body>
 </html>
