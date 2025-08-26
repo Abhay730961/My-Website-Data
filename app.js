@@ -1,11 +1,14 @@
 // --- PASTE YOUR FIREBASE CONFIG OBJECT HERE ---
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-    apiKey: "AIzaSyDDkVr_8XVPQFDfo5q-8eVjuIvJHBbZ_2M",
-    authDomain: "web-voucher-app.firebaseapp.com",
-    projectId: : "web-voucher-app",
-    storageBucket: "web-voucher-app.firebasestorage.app",
-    messagingSenderId: "290727151353",
-    appId: "1:290727151353:web:bc8dba8830446585834428"
+  apiKey: "AIzaSyDDkVr_8XVPQFDfo5q-8eVjuIvJHBbZ_2M",
+  authDomain: "web-voucher-app.firebaseapp.com",
+  databaseURL: "https://web-voucher-app-default-rtdb.firebaseio.com",
+  projectId: "web-voucher-app",
+  storageBucket: "web-voucher-app.firebasestorage.app",
+  messagingSenderId: "290727151353",
+  appId: "1:290727151353:web:bc8dba8830446585834428",
+  measurementId: "G-E4V61MC0NS"
 };
 // --- INITIALIZE FIREBASE APP ---
 firebase.initializeApp(firebaseConfig);
