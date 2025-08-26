@@ -1,13 +1,5 @@
 // --- PASTE YOUR FIREBASE CONFIG OBJECT HERE ---
-<script type="module">
-  // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-analytics.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
-  // Your web app's Firebase configuration
-  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-  const firebaseConfig = {
+const firebaseConfig = {
     apiKey: "AIzaSyDDkVr_8XVPQFDfo5q-8eVjuIvJHBbZ_2M",
     authDomain: "web-voucher-app.firebaseapp.com",
     databaseURL: "https://web-voucher-app-default-rtdb.firebaseio.com",
@@ -17,11 +9,6 @@
     appId: "1:290727151353:web:bc8dba8830446585834428",
     measurementId: "G-E4V61MC0NS"
   };
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
-</script>
-
 // --- INITIALIZE FIREBASE APP ---
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
